@@ -4,6 +4,7 @@ import Phase_Comparison as PComp
 #import System_Response
 import threading
 import numpy as np
+import time
 
 # Create Class instances
 
@@ -38,23 +39,43 @@ def system_loop():
 
 if __name__ == '__main__':
     # Define variables needed
+    az_1 = []
+    az_2 = []
+    el_1 = []
+    el_2 = []
+    az_move = 0
+    el_move = 0
 
     # Start signal processing threads
     SP1.start()
     SP2.start()
     SP3.start()
     SP4.start()
-   
+    #for testing
+    start = time.time()
     while True:
-        pd_1 = SP1.run_cycle()
-        pd_2 = SP2.run_cycle()
-        pd_3 = SP3.run_cycle()
-        pd_4 = SP4.run_cycle()
+        counter = 0
+        # Collect and process samples
+        while counter < 200:
+            phase_1 = SP1.run_cycle()
+            phase_2 = SP2.run_cycle()
+            phase_3 = SP3.run_cycle()
+            phase_4 = SP4.run_cycle()
 
-        PComp.phase_comp(pd_1[1],pd_2[1],pd_3[1],pd_4[1])
+            a_1,a_2,e_1,e_2 = PComp.phase_comp(phase_1,phase_2,phase_3,phase_4)
+            az_1.append(a_1)
+            az_2.append(a_2)
+            el_1.append(e_1)
+            el_2.append(e_2)
+            #break       # for testing
+            counter+=1
 
-        break       # for testing
+        # Average together data
+        az_move, el_move = PComp.average_angles(az_1,az_2,el_1,el_2)
 
+        break # for testing
+    # for testing
+    print(time.time()-start)
     # Close Threads
     SP1.join()
     SP2.join()

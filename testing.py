@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 
 # Create Single class
 SP1 = Signal_Processing.Sig_Proc('192.168.10.10',5005)
-
 # Testing values
 N = 1024
 T = 1.0/800.0

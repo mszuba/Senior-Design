@@ -1,12 +1,8 @@
-# Double check to make sure that these are the modules needed.
-# Is it better to use scipy or numpy fft?
-
 from threading import Thread, Event, Lock
 import socket
 from scipy import signal
 from scipy.fftpack import fft, fftshift
 import numpy as np
-import Phase_Comparison as PC     #can run phase comparison functions in here
 
 class Sig_Proc(Thread):
     def __init__(self,IP_Addr,Port):
@@ -26,13 +22,19 @@ class Sig_Proc(Thread):
         self.phase_data = np.array([])
         self.win = np.hanning(self.window_size)
 
-    def make_connection(self):
+    def make_connection(self, i):
         """Set up connection to N210 USRP"""
+        # might need to select ip and port
+        # this fucntion might be replaced by UHD stuffs
+        # might configure with GNU Radio Companion
+        #print(i)
         
 
     def rec_data(self):
         """Recieves data from the socket connection"""
         # self.data = usrp.read(self.buffer_size)
+        # grab data from correct receiver
+        # make a buffer (1024 current size) for how much data to process at once
         return [0]
 
     def rec_from_file(self):
@@ -44,26 +46,25 @@ class Sig_Proc(Thread):
         self.fft_data = fft(self.win_data)
 
     def bin_select(self):
-        """selects FFT bin for processing"""
+        """selects FFT bin for processing""" #------------currently not used; part of p_e()----
         # want to select bin for 2.4# GHz depending
         # on channel being used for testing
-        return 0
+        mag_ar = np.absolute(self.fft_data)
+        bin_val = np.nanargmax(mag_ar)
+        return bin_val
     
     def phase_extraction(self):
         """Extract phases from selected bin"""
-        #for n in self.fft_data:
-        #   self.phase_data[n]=np.angle(self.fft_data[n])
-         
-        #-----for testing-----
-        self.phase_data = [0,1,2]
+        mag_ar = np.absolute(self.fft_data)
+        bin_val = np.nanargmax(mag_ar)
+        self.phase_data = np.angle(self.fft_data[bin_val])
 
     def run_cycle(self):
         """Runs the functions in class"""
         self.data = self.rec_data()
         self.win_and_fft()
-        selected_bin = self.bin_select()
         self.phase_extraction()
-        print(selected_bin)     # Test output
+        #print(selected_bin)     # Test output
         return self.phase_data
 
     def run(self):

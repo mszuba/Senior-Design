@@ -25,21 +25,31 @@ def phase_comp(p1,p2,p3,p4):
     el_2_den = (2*np.pi*a) / wave_len
     el_2 = np.arccos((el_2_num/el_2_den))
 
+
     # Print output for testing
-    print('Az_1: {}     Az_2: {}'.format(az_1,az_2))
-    print('El_1: {}     El_2: {}'.format(el_1,el_2))
+    #print('Az_1: {}     Az_2: {}'.format(az_1,az_2))
+    #print('El_1: {}     El_2: {}'.format(el_1,el_2))
+    return az_1, az_2, el_1, el_2
 
 def average_angles(az_angles_1,az_angles_2, el_angles_1, el_angles_2):
     """Averages the angles calculated"""
+    # Sum together the data
     n = 0
-    az_sum = 0
-    el_sum = 0
-    while n < 200:
-        az_sum = az_angles_1[n] + az_angles_2[n]
-        el_sum = el_angles_1[n] + el_angles_2[n]
+    az_sum_1 = 0
+    az_sum_2 = 0
+    el_sum_1 = 0
+    el_sum_2 = 0
+    while n < 100:
+        az_sum_1 = az_sum_1 + az_angles_1[n]
+        az_sum_2 = az_sum_2 + az_angles_2[n]
+        el_sum_1 = el_sum_1 + el_angles_1[n]
+        el_sum_2 = el_sum_2 + el_angles_2[n]
+        # incriment counter
         n+=1
-    az_avg = az_sum / 200
-    el_avg = el_sum / 200
+
+    # Take the mean of all the data
+    az_avg = (az_sum_1 + az_sum_2) / 200
+    el_avg = (el_sum_1 + el_sum_2) / 200
 
     # Print for testing
     print('Az_avg: ', str(az_avg))
