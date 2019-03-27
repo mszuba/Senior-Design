@@ -5,7 +5,7 @@ from scipy.fftpack import fft, fftshift
 import numpy as np
 
 class Sig_Proc(Thread):
-    def __init__(self,IP_Addr,Port):
+    def __init__(self,IP_Addr,port):
         """Constructor for Signal Processing Class"""
         Thread.__init__(self)
         self.lock = Lock()
@@ -14,7 +14,7 @@ class Sig_Proc(Thread):
         self.window_size = 1024
         self.fft_size = 2048
         self.IP_Addr = IP_Addr
-        self.Port = Port
+        self.port = port
         self.sock = 0       # set up socket connection in function
         self.stream_data = np.array([])
         self.win_data = np.array([])
@@ -24,11 +24,11 @@ class Sig_Proc(Thread):
 
     def make_connection(self, i):
         """Set up connection to N210 USRP"""
-        # might need to select ip and port
-        # this fucntion might be replaced by UHD stuffs
-        # might configure with GNU Radio Companion
-        #print(i)
-        
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        s.bind(('',self.port))
+        BUFFER_SIZE = 1472
+                
 
     def rec_data(self):
         """Recieves data from the socket connection"""

@@ -3,8 +3,12 @@ import Phase_Comparison as PComp
 #import Motor_Control
 #import System_Response
 import threading
+import serial
 import numpy as np
 import time
+
+#create connections
+ard = serial.Serial('COM3', 9600, timeout = 2)
 
 # Create Class instances
 
@@ -22,11 +26,11 @@ N = 1024
 T = 1.0/800.0
 x = np.linspace(0.0,N*T,N)
 y = np.sin(50.0*2.0*np.pi*x)
-
+y2 = np.sin(50.0*2.0*np.pi*x+np.pi/2) # delayed pi/2 degrees
 # Fucntion Calls
 SP1.stream_data = y #sample data
-SP2.stream_data = y #sample data
-SP3.stream_data = y #sample data
+SP2.stream_data = y2 #sample data
+SP3.stream_data = y2 #sample data
 SP4.stream_data = y #sample data
 #-------------------------------------------------------
 #-------------------------------------------------------
@@ -36,6 +40,10 @@ SP4.stream_data = y #sample data
 # Loop together processes
 def system_loop():
     """Loops together processes"""
+
+def send_data(data):
+    data = str(data)
+    ard.write(data.encode())
 
 if __name__ == '__main__':
     # Define variables needed
@@ -73,9 +81,25 @@ if __name__ == '__main__':
         # Average together data
         az_move, el_move = PComp.average_angles(az_1,az_2,el_1,el_2)
 
+        if(az_move < 0):
+            az_dir = 0
+        else:
+            az_dir = 1
+        if(el_move < 0):
+            el_dir = 0
+        else:
+            el_dir = 1
+
+        az_move = np.abs(az_move)
+        el_move = np.abs(el_move)
+
+        msg = str(az_dir)+','+str(az_move)+','+str(el_dir)+','+str(el_move)
+
+        send_data(msg)
+
         break # for testing
     # for testing
-    print(time.time()-start)
+    print('Time: ', time.time()-start)
     # Close Threads
     SP1.join()
     SP2.join()
