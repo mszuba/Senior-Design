@@ -95,18 +95,20 @@ class Window(Frame):
             # run motor_control.initilization() ?
 
             # ----------SDR Test----------
-            ret = os.system("ping -o -c 3 -W 3000 192.168.10.10")
+            ret = os.system("ping -o -c 3 -W 3000 192.168.10.2")
             if ret != 0:
                 self.net_state = 1
             else:
                 self.net_state = 0
-            ret = os.system("ping -o -c 3 -W 3000 192.168.10.11")
+            ret = os.system("ping -o -c 3 -W 3000 192.168.10.3")
             if ret != 0:
                 self.net_state = 1
             else:
                 self.net_state = 0
             # ----------Jammer Test----------
             # how the heck does this work...
+            
+            #for testing keep below
             self.net_state = 0
             self.m1_state = 0
             self.m2_state = 0

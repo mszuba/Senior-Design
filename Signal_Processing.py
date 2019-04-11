@@ -10,7 +10,7 @@ class Sig_Proc(Thread):
         Thread.__init__(self)
         self.lock = Lock()
         self.event = Event()
-        self.buffer_size = 1024
+        self.BUFFER_SIZE = 1024
         self.window_size = 1024
         self.fft_size = 2048
         self.IP_Addr = IP_Addr
@@ -24,18 +24,25 @@ class Sig_Proc(Thread):
 
     def make_connection(self, i):
         """Set up connection to N210 USRP"""
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        s.bind(('',self.port))
-        BUFFER_SIZE = 1472
-                
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.sock.bind(('',self.port))
+        self.BUFFER_SIZE = 1472
 
     def rec_data(self):
         """Recieves data from the socket connection"""
-        # self.data = usrp.read(self.buffer_size)
-        # grab data from correct receiver
-        # make a buffer (1024 current size) for how much data to process at once
-        return [0]
+        print('Rx data...') #print this for testing
+        data = []
+        while True:
+            n=0
+            data_rx = self.sock.recv(self.BUFFER_SIZE)
+            while n < self.BUFFER_SIZE:
+                print(data_rx[n])
+                data.append(float(data_rx[n]))
+                n+=1
+            break #for testing
+        np.append(self.stream_data, data)
+        return 0
 
     def rec_from_file(self):
         """Test function to read data from file"""
@@ -52,7 +59,7 @@ class Sig_Proc(Thread):
         mag_ar = np.absolute(self.fft_data)
         bin_val = np.nanargmax(mag_ar)
         return bin_val
-    
+
     def phase_extraction(self):
         """Extract phases from selected bin"""
         mag_ar = np.absolute(self.fft_data)

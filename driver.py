@@ -97,6 +97,10 @@ if __name__ == '__main__':
 
         send_data(msg)
 
+        #send motor controller data here
+        #mc.rx_message()
+
+
         break # for testing
     # for testing
     print('Time: ', time.time()-start)
@@ -107,4 +111,3 @@ if __name__ == '__main__':
     SP4.join()
 
     # Shutdown System
-    
