@@ -16,19 +16,35 @@ BUFFER_SIZE = 1472 #number of phase difference samples
 data = []
 
 print('Rx data...')
+count = 0
 counter = 0
 while True:
     n=0
     data_rx = s.recv(BUFFER_SIZE)
     while n < BUFFER_SIZE:
-        print(data_rx[n])
-        data.append(float(data_rx[n]))
+        try:
+            #print(data_rx[n])
+            data.append(float(data_rx[n]))
+            count+=1
+        except:
+            print('Error on {}'.format(str(n)))
+            pass
         n+=1
-    break #for testing
+    print('Number of data samples: ',count)
+    count = 0
+    #break #for testing
+
+    print('Loop {} complete.'.format(str(counter)))
+    counter+=1
+    if(counter > 8):
+        break
 
 s.close()
+
+'''
 N = BUFFER_SIZE #number of phase difference samples
 T=1/N
 t = np.linspace(0.0,N*T,N)
 plt.plot(t,data)    #should plot phase difference over time
 plt.show()
+'''

@@ -13,6 +13,8 @@ class Window(Frame):
         self.m2_state = 1
         self.sdr1_state = 1
         self.sdr2_state = 1
+        self.sdr3_state = 1
+        self.sdr4_state = 1
         self.jammer_state = 1
 
     #Creation of init_window
@@ -21,10 +23,13 @@ class Window(Frame):
         self.pack(fill=BOTH, expand=1)
 
         quitButton = Button(self, text="Exit",bg='grey',command=self.force_quit)
-        quitButton.place(x=300, y=500)
+        quitButton.place(x=400, y=550)
 
         sys_test = Button(self, text="Run System Test",bg='grey',command=self.run_sys_check)
-        sys_test.place(x=175,y=500)
+        sys_test.place(x=175,y=550)
+
+        runButton = Button(self, text="Run System",bg='grey',command=self.run_tracker)
+        runButton.place(x=300, y=550)
 
         net = Label(self, text="Network Test")
         net.place(x=100, y=150)
@@ -56,17 +61,29 @@ class Window(Frame):
         sdr2_test = Label(self, text="N/A",bg='grey')
         sdr2_test.place(x=300, y=350)
 
+        sdr3 = Label(self, text="Receiver 3")
+        sdr3.place(x=100, y=400)
+        
+        sdr3_test = Label(self, text="N/A",bg='grey')
+        sdr3_test.place(x=300, y=400)
+
+        sdr4 = Label(self, text="Receiver 4")
+        sdr4.place(x=100, y=450)
+        
+        sdr4_test = Label(self, text="N/A",bg='grey')
+        sdr4_test.place(x=300, y=450)
+
         jammer = Label(self, text="Jammer")
-        jammer.place(x=100, y=400)
+        jammer.place(x=100, y=500)
         
         jammer_test = Label(self, text="N/A",bg='grey')
-        jammer_test.place(x=300, y=400)
+        jammer_test.place(x=300, y=500)
 
         variable = StringVar(self)
         variable.set("System 1") # default value
 
         w = OptionMenu(self, variable, "System 1", "System 2", "System 3")
-        w.place(x=50,y=500)
+        w.place(x=50,y=550)
 
         # Title Image
         
@@ -78,6 +95,10 @@ class Window(Frame):
 
     def force_quit(self):
         exit()
+
+    def run_tracker(self):
+        # Run the driver code here
+        print('Running Tracker')
 
     def run_sys_check(self):
         """Runs a test on system components"""
@@ -95,25 +116,46 @@ class Window(Frame):
             # run motor_control.initilization() ?
 
             # ----------SDR Test----------
-            ret = os.system("ping -o -c 3 -W 3000 192.168.10.2")
+            #ret = os.system("ping -o -c 3 -W 3000 192.168.10.2")
+            ret = os.system("ping 192.168.10.2")
             if ret != 0:
-                self.net_state = 1
-            else:
                 self.net_state = 0
-            ret = os.system("ping -o -c 3 -W 3000 192.168.10.3")
+                self.sdr1_state = 0
+            else:
+                self.net_state = 1
+                self.sdr1_state = 1
+            print(ret)
+            ret = os.system("ping 192.168.10.3")
             if ret != 0:
-                self.net_state = 1
-            else:
                 self.net_state = 0
+                self.sdr2_state = 0
+            else:
+                self.net_state = 1
+                self.sdr2_state = 1
+            ret = os.system("ping 192.168.10.4")
+            if ret != 0:
+                self.net_state = 0
+                self.sdr3_state = 0
+            else:
+                self.net_state = 1
+                self.sdr3_state = 1
+            ret = os.system("ping 192.168.10.5")
+            if ret != 0:
+                self.net_state = 0
+                self.sdr4_state = 0
+            else:
+                self.net_state = 1
+                self.sdr4_state = 1
+            print(ret)
             # ----------Jammer Test----------
             # how the heck does this work...
             
-            #for testing keep below
-            self.net_state = 0
+            #for testing keep below-------------------------------
+            #self.net_state = 0
             self.m1_state = 0
             self.m2_state = 0
-            self.sdr1_state = 0
-            self.sdr2_state = 0
+            #self.sdr1_state = 0
+            #self.sdr2_state = 0
             self.jammer_state = 0
 
         # display result of each test as a pass or fail   
@@ -148,12 +190,24 @@ class Window(Frame):
         else:
             sdr2_test = Label(self, text="PASS",bg='green')
             sdr2_test.place(x=300, y=350)
+        if(self.sdr3_state == 0):
+            sdr3_test = Label(self, text="FAIL",bg='red')
+            sdr3_test.place(x=300, y=400)
+        else:
+            sdr3_test = Label(self, text="PASS",bg='green')
+            sdr3_test.place(x=300, y=400)
+        if(self.sdr4_state == 0):
+            sdr4_test = Label(self, text="FAIL",bg='red')
+            sdr4_test.place(x=300, y=450)
+        else:
+            sdr4_test = Label(self, text="PASS",bg='green')
+            sdr4_test.place(x=300, y=450)
         if(self.jammer_state == 0):
             jammer_test = Label(self, text="FAIL",bg='red')
-            jammer_test.place(x=300, y=400)
+            jammer_test.place(x=300, y=500)
         else:
             jammer_test = Label(self, text="PASS",bg='green')
-            jammer_test.place(x=300, y=400)
+            jammer_test.place(x=300, y=500)
         #stop tracking program
         #run a system test program that reports errors
         print('Test Complete')

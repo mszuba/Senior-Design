@@ -22,7 +22,7 @@ class Sig_Proc(Thread):
         self.phase_data = np.array([])
         self.win = np.hanning(self.window_size)
 
-    def make_connection(self, i):
+    def make_connection(self):
         """Set up connection to N210 USRP"""
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -31,17 +31,19 @@ class Sig_Proc(Thread):
 
     def rec_data(self):
         """Recieves data from the socket connection"""
-        print('Rx data...') #print this for testing
+        #print('Rx data...') #print this for testing
         data = []
         while True:
             n=0
             data_rx = self.sock.recv(self.BUFFER_SIZE)
-            while n < self.BUFFER_SIZE:
-                print(data_rx[n])
+            while n < 1024:
+                #print(data_rx[n])
                 data.append(float(data_rx[n]))
                 n+=1
             break #for testing
-        np.append(self.stream_data, data)
+        self.stream_data = np.asarray(data)
+        #print('Lenght = {}'.format(str(len(self.stream_data))))
+        #np.append(self.stream_data, data)
         return 0
 
     def rec_from_file(self):
@@ -68,6 +70,7 @@ class Sig_Proc(Thread):
 
     def run_cycle(self):
         """Runs the functions in class"""
+        #self.make_connection()
         self.data = self.rec_data()
         self.win_and_fft()
         self.phase_extraction()
