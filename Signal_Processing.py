@@ -52,7 +52,7 @@ class Sig_Proc(Thread):
     def win_and_fft(self):
         """Windows data and does FFT"""
         self.win_data = self.stream_data * self.win
-        self.fft_data = fft(self.win_data)
+        self.fft_data = fft(self.win_data, self.fft_size)
 
     def bin_select(self):
         """selects FFT bin for processing""" #------------currently not used; part of p_e()----

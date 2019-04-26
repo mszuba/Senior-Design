@@ -115,13 +115,15 @@ while True:
     else:
         el_dir = 1
 
-    az_move = np.abs(az_move)
-    el_move = np.abs(el_move)
+    az_move = np.abs(az_move)-90    # domain is
+    el_move = np.abs(el_move)-90
 
-    print('Az_move: {}  El_move: {}'.format(str(az_move),str(el_move)))
+    print('--------| Az_move: {}  El_move: {} |----'.format(str(az_move),str(el_move)))
     break
 
 print('-Phase Comparison Complete')
+
+    
 
 '''print('-Generating Graphs.')
 #print(data)

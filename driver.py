@@ -43,7 +43,7 @@ SP4.stream_data = y #sample data
 def system_loop():
     """Loops together processes"""
 
-def format_data(e_d, e_m, a_d, a_m):
+def format_data(e_d, e_m, a_d, a_m,fn,axis):
     """Formats a message for send_data function"""
     # Message Protocol "99, Ele dir, Ele deg, Azi dir, Azi deg, function, axis, 99" 
     # Message Struct   "99,    X   ,    XX  ,    X   ,   XX   ,    X    ,  X  , 99"
@@ -61,7 +61,7 @@ def format_data(e_d, e_m, a_d, a_m):
     else:
         a_m_str = str(a_m)
 
-    formated_msg = "99"+str(e_d)+(e_m_str)+str(a_d)+(a_m_str)+"99"
+    formated_msg = "99"+str(e_d)+(e_m_str)+str(a_d)+(a_m_str)+str(fn)+str(axis)+"99"
     return formated_msg
 
 def send_data(data):
@@ -70,30 +70,63 @@ def send_data(data):
         sys.stdout.flush()
         strTemp = str(data)
         strTemp_encoded = strTemp.encode("ascii")
-        print ("Python value sent: ")
-        print (strTemp)
+        print("Python value sent: ")
+        print(strTemp)
         not_confirmed = True
         i = 0
         while not_confirmed:  
                 ard.write(strTemp_encoded)
                 time.sleep(.2)
                 received_str = ard.readline().decode()
-                print(received_str)  
+                print(received_str)                    
                 if (received_str == strTemp):
                         not_confirmed = False 
-                i = 1 +i   
-                if i > 10:
-                        exit()  #This will need to send a message to the GUI
+                        exit()
                         ard.flush
                         sys.stdout.flush()
-                        ard.close() 
-                        
-def run_callobration():
+                i = 1 + i   
+                if i > 10:
+                        exit()  #This will need to send a message to the GUI about somehtign not working
+                        ard.flush
+                        sys.stdout.flush() 
+
+def hold_fn():
+
+    time.sleep(1) 
+    not_finished = True
+    p = 0
+    while not_finished:  
+            received_str = ard.readline().decode()
+            print(received_str)
+            if (received_str == "222"): #This is the finished function message
+                    not_finished = False 
+                    exit()
+                    ard.flush
+                    sys.stdout.flush()
+            p = 1 + p   
+            if p > 1000:
+                    exit()  
+                    ard.flush
+                    sys.stdout.flush()
+
+def run_initialization():
     """Runs the system callobration before use"""
-    ROM_msg = ""    # message to run ROM test
-    pot_msg = ""    # messgae to callobrate potentiometer
-    send_data(ROM_msg)
-    send_data(pot_msg)
+    init_message_az  = "990000000099"
+    init_message_ele = "990000000199"
+    send_data(init_message_az)
+  #  hold_fn()       #This prolly doesnt work.
+    time.sleep(20)              #I need the arduino sketch to tell this fn when its finished and when to start.
+    send_data(init_message_ele)
+  #  hold_fn()
+    time.sleep(20)              #I need the arduino sketch to tell this fn when its finished and when to start.
+
+def trigger_buzzer():
+    buzzer_message = "990000002099"
+    send_data(buzzer_message)
+
+def drive_stepper(e_d, e_m, a_d, a_m, axis):
+    send_string = format_data(e_d, e_m, a_d, a_m,0,axis)
+    send_data(send_string)
 
 def rec_data():
     """Receive position data back from arduino"""
@@ -163,10 +196,9 @@ if __name__ == '__main__':
 
 
         # sending data to arduino for motor controller here
-        #----testing message------
-        #send_data("990000030099")
-
-        msg = format_data(el_dir, el_move, az_dir, az_move)
+        func = 1
+        ax = 1
+        msg = format_data(el_dir, el_move, az_dir, az_move, func, ax)
         send_data(msg)
 
         if(abs(az_move) < 3 and abs(el_move) < 3):

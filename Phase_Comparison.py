@@ -5,7 +5,7 @@ def phase_comp(p1,p2,p3,p4):
     #-------currently only for 1 number arrary-----------
 
     wave_len = 0.122    # 122 mm @ 2.45 GHz
-    a = 0.11            # Spacing between antennas (m)
+    a = 0.7            # Spacing between antennas (m)
 
     # Phase Differences
     diff_21 = p2-p1
@@ -18,6 +18,8 @@ def phase_comp(p1,p2,p3,p4):
     el_1_num = np.sqrt((np.square(diff_21))+np.square(diff_31))
     el_1_den = (2*np.pi*a) / wave_len
     el_1 = np.arccos((el_1_num/el_1_den))
+    print("el_1_num", el_1_num)
+    print("el_1_den", el_1_den)
 
     # Angles with reference to antenna 4
     az_2= np.arctan2(diff_24,diff_34)*57.2958   # convert to degrees
@@ -48,7 +50,7 @@ def average_angles(az_angles_1,az_angles_2, el_angles_1, el_angles_2):
         n+=1
 
     # Take the mean of all the data
-    az_avg = (az_sum_1 + az_sum_2) / 200
+    az_avg = (az_sum_1 + az_sum_1) / 200
     el_avg = (el_sum_1 + el_sum_2) / 200
 
     # Print for testing
