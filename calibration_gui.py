@@ -1,6 +1,6 @@
 from tkinter import *
 from PIL import ImageTk, Image
-import os
+import os, serial
 
 class Window(Frame):
 
@@ -99,6 +99,7 @@ class Window(Frame):
     def run_tracker(self):
         # Run the driver code here
         print('Running Tracker')
+        os.system("python driver.py")
 
     def run_sys_check(self):
         """Runs a test on system components"""
@@ -113,7 +114,13 @@ class Window(Frame):
                 self.net_state = 0
             # ----------Motor Test----------
 
-            # run motor_control.initilization() ?
+            try:
+                ardunio = serial.Serial('COM3', 9600, timeout = 2)
+                self.m1_state = 1
+                self.m2_state = 1
+            except:
+                self.m1_state = 0
+                self.m2_state = 0
 
             # ----------SDR Test----------
             #ret = os.system("ping -o -c 3 -W 3000 192.168.10.2")

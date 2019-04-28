@@ -9,7 +9,7 @@ import time
 import sys
 
 #create connections
-ard = serial.Serial('COM3', 9600, timeout = 2)
+#ard = serial.Serial('COM3', 9600, timeout = 2)
 
 # Create Class instances
 
@@ -32,8 +32,8 @@ y2 = np.sin(50.0*2.0*np.pi*x+np.pi/2) # delayed pi/2 degrees
 # Fucntion Calls
 #SP1.stream_data = y #sample data
 #SP2.stream_data = y2 #sample data
-SP3.stream_data = y2 #sample data
-SP4.stream_data = y #sample data
+#SP3.stream_data = y2 #sample data
+#SP4.stream_data = y #sample data
 #-------------------------------------------------------
 #-------------------------------------------------------
 #-------------------------------------------------------
@@ -43,7 +43,7 @@ SP4.stream_data = y #sample data
 def system_loop():
     """Loops together processes"""
 
-def format_data(e_d, e_m, a_d, a_m,fn,axis):
+'''def format_data(e_d, e_m, a_d, a_m,fn,axis):
     """Formats a message for send_data function"""
     # Message Protocol "99, Ele dir, Ele deg, Azi dir, Azi deg, function, axis, 99" 
     # Message Struct   "99,    X   ,    XX  ,    X   ,   XX   ,    X    ,  X  , 99"
@@ -140,7 +140,7 @@ def rec_data():
     else:
         pass
     return pos
-
+'''
 
 if __name__ == '__main__':
     # Define variables needed
@@ -156,32 +156,43 @@ if __name__ == '__main__':
     #run_callobration()
 
     # Start signal processing threads
-    SP1.start()
-    SP2.start()
-    SP3.start()
-    SP4.start()
-    #for testing
-    start = time.time()
+    #SP1.start()
+    #SP2.start()
+    #SP3.start()
+    #SP4.start()
+
+    SP1.make_connection()
+    SP2.make_connection()
+    SP3.make_connection()
+    SP4.make_connection()
+    print('Connections made...')    # for testing
+    start = time.time() # for testing
+    c = 0
     while True:
         counter = 0
         # Collect and process samples
         while counter < 200:
-            phase_1 = SP1.run_cycle()
-            phase_2 = SP2.run_cycle()
-            phase_3 = SP3.run_cycle()
-            phase_4 = SP4.run_cycle()
+            SP1.run_cycle()
+            SP2.run_cycle()
+            SP3.run_cycle()
+            SP4.run_cycle()
 
+            phase_1 = SP1.phase_data
+            phase_2 = SP2.phase_data
+            phase_3 = SP3.phase_data
+            phase_4 = SP4.phase_data
+            #print("Pass ", counter) # for testing
             a_1,a_2,e_1,e_2 = PComp.phase_comp(phase_1,phase_2,phase_3,phase_4)
             az_1.append(a_1)
             az_2.append(a_2)
             el_1.append(e_1)
             el_2.append(e_2)
-            #break       # for testing
             counter+=1
 
+        counter = 0
         # Average together data
         az_move, el_move = PComp.average_angles(az_1,az_2,el_1,el_2)
-
+        print(SP1.phase_data, SP2.phase_data, SP3.phase_data, SP4.phase_data)
         if(az_move < 0):
             az_dir = 0
         else:
@@ -198,8 +209,8 @@ if __name__ == '__main__':
         # sending data to arduino for motor controller here
         func = 1
         ax = 1
-        msg = format_data(el_dir, el_move, az_dir, az_move, func, ax)
-        send_data(msg)
+        #msg = format_data(el_dir, el_move, az_dir, az_move, func, ax)
+        #send_data(msg)
 
         if(abs(az_move) < 3 and abs(el_move) < 3):
             #--------Trigger the Jammer here--------
@@ -207,15 +218,17 @@ if __name__ == '__main__':
         else:
             pass
 
-        break # for testing
+        if(c > 3):
+            break
+        else:
+            c+=1
+        #break # for testing
 
-    # for testing
-    print('Time: ', time.time()-start)
-
+    print('Time: ', time.time()-start) # for testing
     # Close Threads
-    SP1.join()
-    SP2.join()
-    SP3.join()
-    SP4.join()
+    #SP1.join()
+    #SP2.join()
+    #SP3.join()
+    #SP4.join()
 
     # Shutdown System

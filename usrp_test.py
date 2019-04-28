@@ -72,9 +72,9 @@ while True:
             pass
         n+=1
     break #for testing
-print('     Len1: {}'.format(str(len(data))))
-print('     Len2: {}'.format(str(len(data2))))
-print('     Len3: {}'.format(str(len(data3))))
+#print('     Len1: {}'.format(str(len(data))))
+#print('     Len2: {}'.format(str(len(data2))))
+#print('     Len3: {}'.format(str(len(data3))))
 print('-Receiving complete.')
 
 az_1 = []
@@ -119,68 +119,6 @@ while True:
     el_move = np.abs(el_move)-90
 
     print('--------| Az_move: {}  El_move: {} |----'.format(str(az_move),str(el_move)))
-    break
+    #break
 
 print('-Phase Comparison Complete')
-
-    
-
-'''print('-Generating Graphs.')
-#print(data)
-#print(data2)
-
-#conn.close()
-s.close()
-
-# ----------- Display signal-----------------
-N = 1024
-T=1/N
-x = np.linspace(0.0,N*T,N)
-w = np.hanning(N)
-#yf = fft(data)
-#ywf = fft((w*data))
-plt.plot(x,data)
-plt.show()
-# ------------- Disply windowed signal-------------
-N = 1024
-T=1/N
-x = np.linspace(0.0,N*T,N)
-w = np.hanning(N)
-#yf = fft(data)
-#ywf = fft((w*data))
-plt.plot(x,(w*data))
-plt.show()
-
-# ------------- Display FFT of windowed signal -------------
-N = 1024
-T=1/N
-x = np.linspace(0.0,N*T,N)
-w = np.hanning(N)
-yf = fft(data)
-ywf = fft((w*data))
-plt.plot(x,ywf)
-plt.show()
-
-print('-Graphing Complete.')'''
-
-
-'''
-N = BUFFER_SIZE
-T=1/N
-
-y = np.sin(50*2.0*np.pi*x)
-
-
-w = np.hanning(N)
-yf = fft(data)
-ywf = fft(data*w)
-
-xf = np.linspace(0.0,1.0/(2.0*T), N/2)
-plt.semilogy(xf[1:N//2], 2.0/N * np.abs(yf[1:N//2]), '-b')
-plt.semilogy(xf[1:N//2], 2.0/N * np.abs(ywf[1:N//2]), '-r')
-plt.semilogy(xf[1:N//2], 2.0/N * np.abs(yf[1:N//2]), '-b')
-plt.semilogy(xf[1:N//2], 2.0/N * np.abs(ywf[1:N//2]), '-r')
-plt.legend(['FFT', 'FFT w. window'])
-plt.grid()
-plt.show()
-'''

@@ -80,11 +80,21 @@ class Window(Frame):
             el = el_val.get()
             # send the direction to motors
             try: # try except to catch invalid input
+                if(el < 0):
+                    el_dir = 0
+                else:
+                    el_dir = 1
+                if(az < 0):
+                    az_dir = 0
+                else:
+                    az_dir = 1
                 print('Az {} El: {}'.format(str(az),str(el)))
+                drive_stepper(el, el_dir, az, az_dir, 0) # 0 is azimuth, 1 is elevation
+                drive_stepper(el, el_dir, az, az_dir, 1) 
             except:
                 pass
 
-        title_label = Label(self, text="TEAM ROUGE", bg="black",fg = "white",font=("Helvetica", 14))
+        title_label = Label(self, text="TEAM ROGUE", bg="black",fg = "white",font=("Helvetica", 14))
         title_label.place(x = 100, y = 0)
 
         RxButton = Button(self, text="Rx Data",command=self.Rx_data)
@@ -111,9 +121,13 @@ class Window(Frame):
 
         motorButton = Button(self, text="Move",command=run_motors)
         motorButton.place(x = 150,y = 265)
+       
+        binButton = Button(self, text="Select Bin",command=self.bin_select)
+        binButton.place(x=50,y=310)
 
         quitButton = Button(self, text="Exit",command=self.force_quit)
         quitButton.place(x=50, y=350)
+
 
     def force_quit(self):
         exit()
@@ -126,11 +140,15 @@ class Window(Frame):
         while n < 1024:
             try:
                 #print(data_rx[n])
-                self.data.append(float(data_rx[n]))
+                if(n == 0):
+                    self.data.append(0)
+                else:
+                    self.data.append(float(data_rx[n]))
             except:
                 pass
             n+=1
         print('Data Received.')
+        print(self.data)
         
 
     def plot_data(self):
@@ -149,10 +167,10 @@ class Window(Frame):
         x = np.linspace(0.0,N*T,N)
         y = np.sin(50.0*2.0*np.pi*x) + 0.5*np.sin(80.0*2.0*np.pi*x)
         y = self.data
-        yf = fft(y,1024)
+        yf = fft(y)
         #create window on data
         w = np.hanning(N)
-        ywf = fft(y*w,1024)
+        ywf = fft((y*w))
         #xf = np.linspace(0.0,1.0/(2.0*T), N/2)
         xf = np.linspace(0,1,len(ywf))
         #plot the data
@@ -170,11 +188,9 @@ class Window(Frame):
         T = 1.0/N
         x = np.linspace(2400,2480,N)
         y = self.data
-        yf = fft(y,1024)
+        yf = fft(y)
         #create window on data
-        w = np.hanning(N)
-        ywf = fft(y*w,1024)
-        xf = np.linspace(0, 1, len(ywf))
+        xf = np.linspace(0, 1, len(yf))
         #plot the data
         plt.semilogy(xf[1:N//2], 2.0/N * np.abs(yf[1:N//2]), '-b')
         plt.legend(['FFT'])
@@ -182,6 +198,31 @@ class Window(Frame):
         plt.grid()
         plt.show()
 
+    def bin_select(self):
+        """selects FFT bin for processing""" #------------currently not used; part of p_e()----
+        def popupmsg(msg_a,msg_b):
+            """Creates pop up message"""
+            popup = Tk()
+            popup.wm_title("Bin Selection")
+            labela = Label(popup, text=msg_a)#, font=NORM_FONT)
+            labela.pack(side="top", fill="x", pady=10)
+            labelb = Label(popup, text=msg_b)#, font=NORM_FONT)
+            labelb.pack(side="top", fill="x", pady=10)
+            B1 = Button(popup, text="Exit", command = popup.destroy)
+            B1.pack()
+        y = self.data
+        #yf = fft(y,1024)
+        w = np.hanning(1024)
+        yf = fft((y))
+        mag_ar = np.absolute(yf)
+        mag_ar[0] = 0
+        print(mag_ar)
+        bin_val = np.argmax(mag_ar)
+        selected_freq = bin_val * 2444 + 2419000000
+        msg1 = "Selected Bin: " +str(bin_val)
+        msg2 ="Selectred frequency: {} Hz".format(selected_freq)
+        popupmsg(msg1,msg2)
+        
 
 if __name__ == '__main__':
     root = Tk()
