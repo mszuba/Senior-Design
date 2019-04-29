@@ -232,3 +232,7 @@ if __name__ == '__main__':
     #SP4.join()
 
     # Shutdown System
+    SP1.close_stream
+    SP2.close_stream
+    SP3.close_stream
+    SP4.close_stream

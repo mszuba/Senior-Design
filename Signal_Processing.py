@@ -31,6 +31,10 @@ class Sig_Proc(Thread):
         self.BUFFER_SIZE = 1472
         self.lock.release()
 
+    def close_stream(self):
+        """Close the stream"""
+        self.sock.close()
+
     def rec_data(self):
         """Recieves data from the socket connection"""
         self.lock.acquire()

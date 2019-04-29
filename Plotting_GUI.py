@@ -121,13 +121,18 @@ class Window(Frame):
 
         motorButton = Button(self, text="Move",command=run_motors)
         motorButton.place(x = 150,y = 265)
-       
+        
+        motorReadButton = Button(self, text="Read Position",command=self.read_position)
+        motorReadButton.place(x = 200,y = 265)
+        
         binButton = Button(self, text="Select Bin",command=self.bin_select)
         binButton.place(x=50,y=310)
 
-        quitButton = Button(self, text="Exit",command=self.force_quit)
-        quitButton.place(x=50, y=350)
+        phaseButton = Button(self, text="Extract Phase",command=self.phase_extraction)
+        phaseButton.place(x=50,y=350)
 
+        quitButton = Button(self, text="Exit",command=self.force_quit)
+        quitButton.place(x=50, y=400)
 
     def force_quit(self):
         exit()
@@ -148,7 +153,7 @@ class Window(Frame):
                 pass
             n+=1
         print('Data Received.')
-        print(self.data)
+        #print(self.data)   # for testing
         
 
     def plot_data(self):
@@ -198,12 +203,36 @@ class Window(Frame):
         plt.grid()
         plt.show()
 
+    def phase_extraction(self):
+        """Extract phases from selected bin"""
+        def phasepopupmsg(phase_rad, phase_deg):
+            """Pop up msg shows motor actual position"""
+            Ppopup = Tk()
+            Ppopup.geometry("300x150")
+            Ppopup.wm_title("Phase Extraction")
+            phase_msg = "Extracted Phase: " + str(phase_rad) + " rad"
+            phase_msg2 = "Extracted Phase: " + str(phase_deg) + " deg"
+            label = Label(Ppopup, text=phase_msg)
+            label.pack(side="top", fill="x", pady=10)
+            label2 = Label(Ppopup, text=phase_msg2)
+            label2.pack(side="top", fill="x", pady=10)
+            B = Button(Ppopup, text="Exit", command = Ppopup.destroy)
+            B.pack()
+        y = fft(self.data)
+        mag_ar = np.absolute(y)
+        mag_ar[0] = 0
+        bin_val = np.argmax(mag_ar)
+        phase_data_rad = np.angle(y[bin_val])
+        phase_data_deg = np.angle(y[bin_val]) * 57.2958
+        phasepopupmsg(phase_data_rad, phase_data_deg)
+
     def bin_select(self):
         """selects FFT bin for processing""" #------------currently not used; part of p_e()----
         def popupmsg(msg_a,msg_b):
             """Creates pop up message"""
             popup = Tk()
             popup.wm_title("Bin Selection")
+            popup.geometry("300x150")
             labela = Label(popup, text=msg_a)#, font=NORM_FONT)
             labela.pack(side="top", fill="x", pady=10)
             labelb = Label(popup, text=msg_b)#, font=NORM_FONT)
@@ -216,7 +245,7 @@ class Window(Frame):
         yf = fft((y))
         mag_ar = np.absolute(yf)
         mag_ar[0] = 0
-        print(mag_ar)
+        #print(mag_ar)  # for testing
         bin_val = np.argmax(mag_ar)
         selected_freq = bin_val * 2444 + 2419000000
         msg1 = "Selected Bin: " +str(bin_val)
@@ -224,12 +253,35 @@ class Window(Frame):
         popupmsg(msg1,msg2)
         
 
+    def read_position(self):
+        """Reads position back from motors"""
+        def motorpopupmsg(a,e):
+            """Pop up msg shows motor actual position"""
+            popup2 = Tk()
+            popup2.geometry("200x150")
+            popup2.wm_title("Bin Selection")
+            az_msg = "Azimuth Degrees: " + str(a)
+            el_msg = "Elevation Degrees: " + str(e)
+            labela = Label(popup2, text=az_msg)
+            labela.pack(side="top", fill="x", pady=10)
+            labelb = Label(popup2, text=el_msg)
+            labelb.pack(side="top", fill="x", pady=10)
+            B = Button(popup2, text="Exit", command = popup2.destroy)
+            B.pack()
+        try:
+            recv_msg = self.ard.readline()
+            data = recv_msg.split(',')
+            az = data[0]
+            el = data[1]
+            motorpopupmsg(az,el)
+        except:
+            motorpopupmsg('N/A','N/A')
+
 if __name__ == '__main__':
     root = Tk()
-    root.geometry("300x400")
+    root.geometry("300x450")
 
     # find command to run GNU blocks for receiving
-
     host = '192.168.10.1' #check host number to match USRP's IP 
     port = 12345
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)

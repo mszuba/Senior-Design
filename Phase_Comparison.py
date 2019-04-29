@@ -18,7 +18,7 @@ def phase_comp(p1,p2,p3,p4):
     az_1= np.arctan2(diff_21,diff_31)*57.2958 # convert to degrees
     el_1_num = np.sqrt((np.square(diff_21))+np.square(diff_31))
     el_1_den = (2*np.pi*a) / wave_len
-    el_1 = np.arccos((el_1_num/el_1_den))
+    el_1 = np.arccos((el_1_num/el_1_den)) *57.2958 # convert to degrees
     #print("el_1_num", el_1_num)
     #print("el_1_den", el_1_den)
 
